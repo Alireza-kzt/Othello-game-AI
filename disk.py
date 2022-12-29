@@ -37,12 +37,18 @@ class Disk:
         "h": 7,
     }
 
-    def __init__(self, x, y) -> None:
-        self.x = x
-        self.y = y
+    def __init__(self, *args) -> None:
+        if len(args) == 1:
+            disk = args[0]
+            self.x = disk.x
+            self.y = disk.y
+        else:
+            self.x = args[0]
+            self.y = args[1]
 
     def __hash__(self) -> int:
         return hash(self.x) + hash(self.convertor[self.y]) + hash(self.x) * hash(self.convertor[self.y]) + hash(
             self.x * self.convertor[self.y]) + hash(str(self.x) + self.convertor[self.y])
 
-
+    def __eq__(self, o: "Disk") -> bool:
+        return o.x == self.x and o.y == self.y
