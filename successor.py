@@ -1,0 +1,2 @@
+def successor():
+    pass
