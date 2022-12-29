@@ -28,13 +28,12 @@ class State:
         self.turn = parent.turn
         self.parent = parent
 
-    """
-    disk  := new disk for player turn
-        type object Disk 
-    disks :=  list disk must be change
-    """
-
     def add_disk(self, disk, disks: list[Disk]) -> None:
+        """
+           disk  := new disk for player turn
+               type object Disk
+           disks :=  list disk must be change
+        """
         if self.turn:
             self.white_player.append(disk)
             for disk in disks:
@@ -62,6 +61,18 @@ class State:
         pass
 
     def heuristic(self) -> int:
+        return self.mobility() + self.stability() + self.corner_score() + self.side_score()
+
+    def mobility(self) -> int:
+        pass
+
+    def stability(self) -> int:
+        pass
+
+    def corner_score(self) -> int:
+        pass
+
+    def side_score(self) -> int:
         pass
 
     def valid_move(self) -> bool:
