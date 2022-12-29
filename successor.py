@@ -1,2 +1,2 @@
-def successor():
+def successor(state):
     pass

@@ -1,6 +1,3 @@
-
-
-
 class Disk:
     """
     - disk
@@ -82,7 +79,7 @@ class State:
         type object Disk 
     disks :=  list disk must be change
     """
-    def add_disk(self, disk, disks: list[Disk]):
+    def add_disk(self, disk, disks: list[Disk])->None:
         if self.turn:
             self.player_white.append(disk)
             for disk in disks:
@@ -107,9 +104,15 @@ class State:
             h += hash(disk)*hash("black")*hash(str(self.turn))
         return h
 
+    """
+    - valid_move
+    return true if player turn can move
+    return false if player turn can not move 
+    """
+    def valid_move(self)->bool:
+        from successor import successor
+        return successor(self) != []
 
-    def valid_move(self):
-        pass
 
 
 
