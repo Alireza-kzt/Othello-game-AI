@@ -61,7 +61,10 @@ class State:
         pass
 
     def heuristic(self) -> int:
-        return self.mobility() + self.stability() + self.corner_score() + self.side_score()
+        return self.disk_difference() + self.mobility() + self.stability() + self.corner_score() + self.side_score()
+
+    def disk_difference(self) -> int:
+        pass
 
     def mobility(self) -> int:
         pass
