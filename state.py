@@ -28,9 +28,11 @@ class State:
         self.turn = parent.turn
         self.parent = parent
 
+    @property
     def maximizer_disks(self):
         return self.white_player if self.turn else self.black_player
 
+    @property
     def minimizer_disks(self):
         return self.black_player if self.turn else self.white_player
 
@@ -66,11 +68,13 @@ class State:
     def successor(self) -> list['State']:
         pass
 
-    def heuristic(self) -> int:
-        return self.disk_difference() + self.mobility() + self.stability() + self.corner_score() + self.side_score()
+    def heuristic(self) -> float:
+        return self.disk_parity() + self.mobility() + self.stability() + self.corner_score() + self.side_score()
 
-    def disk_difference(self) -> int:
-        pass
+    def disk_parity(self) -> float:
+        max_player_disks = len(self.maximizer_disks)
+        min_player_disks = len(self.maximizer_disks)
+        return 100 * (max_player_disks - min_player_disks) / (max_player_disks + min_player_disks)
 
     def mobility(self) -> int:
         pass
