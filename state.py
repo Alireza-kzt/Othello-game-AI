@@ -28,6 +28,12 @@ class State:
         self.turn = parent.turn
         self.parent = parent
 
+    def maximizer_disks(self):
+        return self.white_player if self.turn else self.black_player
+
+    def minimizer_disks(self):
+        return self.black_player if self.turn else self.white_player
+
     def add_disk(self, disk, disks: list[Disk]) -> None:
         """
            disk  := new disk for player turn
