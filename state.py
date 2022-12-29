@@ -76,8 +76,10 @@ class State:
         min_player_disks = len(self.maximizer_disks)
         return 100 * (max_player_disks - min_player_disks) / (max_player_disks + min_player_disks)
 
-    def mobility(self) -> int:
-        pass
+    def mobility(self) -> float:
+        max_player_moves = 0  # Todo: number of available moves for max player
+        min_player_moves = 0  # Todo: number of available moves for min player
+        return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
 
     def stability(self) -> int:
         pass
