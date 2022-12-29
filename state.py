@@ -61,10 +61,13 @@ class State:
     def successor(self) -> list['State']:
         pass
 
+    def heuristic(self) -> int:
+        pass
+
     def valid_move(self) -> bool:
         """
             - valid_move
             return true if player turn can move
             return false if player turn can not move
-            """
+        """
         return self.successor() != []
