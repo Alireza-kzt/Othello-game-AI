@@ -69,7 +69,7 @@ class State:
         pass
 
     def heuristic(self) -> float:
-        return self.disk_parity() + self.mobility() + self.stability() + self.corner_score() + self.side_score()
+        return self.disk_parity() + self.mobility() + self.stability() + self.corner_captured()
 
     def disk_parity(self) -> float:
         max_player_disks = len(self.maximizer_disks)
@@ -84,20 +84,19 @@ class State:
     def stability(self) -> int:
         pass
 
-    def corner_score(self) -> float:
+    def corner_captured(self) -> float:
         max_player_corners = 0
         min_player_corners = 0
 
         for disk in self.maximizer_disks:
             if disk.is_corner():
                 max_player_corners += 1
-            else:
+
+        for disk in self.minimizer_disks:
+            if disk.is_corner():
                 min_player_corners += 1
 
         return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners)
-
-    def side_score(self) -> int:
-        pass
 
     def valid_move(self) -> bool:
         """
