@@ -96,8 +96,10 @@ class State:
         min_player_moves = 0  # Todo: number of available moves for min player
         return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
 
-    def stability(self) -> int:
-        pass
+    def stability(self) -> float:
+        max_player_stability = 0  # Todo: rate of white disk can be flank
+        min_player_stability = 0  # Todo: rate of black disk can be flank
+        return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability)
 
     def corner_captured(self) -> float:
         max_player_corners = 0
