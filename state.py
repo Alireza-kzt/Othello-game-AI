@@ -65,6 +65,21 @@ class State:
             h += hash(disk) * hash("black") * hash(str(self.turn))
         return h
 
+    def __eq__(self, other: 'State') -> bool:
+        return self.state == other.state
+
+    def __gt__(self, other: 'State') -> bool:
+        return self.heuristic() > other.heuristic()
+
+    def __lt__(self, other: 'State') -> bool:
+        return self.heuristic() < other.heuristic()
+
+    def __ge__(self, other: 'State') -> bool:
+        return self.heuristic() >= other.heuristic()
+
+    def __le__(self, other: 'State') -> bool:
+        return self.heuristic() >= other.heuristic()
+
     def successor(self) -> list['State']:
         pass
 
