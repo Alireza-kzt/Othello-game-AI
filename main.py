@@ -8,6 +8,7 @@ if __name__ == '__main__':
     state = State()  # init state
 
     while not state.is_goal():
-        state = black_player.minmax(state) if state.turn else white_player.minmax(state)
+        next_state = black_player.minmax(state) if state.turn else white_player.minmax(state)
+        state = next_state if state is not None else state
 
     print(state.get_winner())
