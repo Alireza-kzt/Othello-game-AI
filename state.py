@@ -66,7 +66,7 @@ class State:
         return h
 
     def __eq__(self, other: 'State') -> bool:
-        return self.state == other.state
+        return self.heuristic() == other.heuristic()
 
     def __gt__(self, other: 'State') -> bool:
         return self.heuristic() > other.heuristic()
