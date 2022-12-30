@@ -122,3 +122,12 @@ class State:
             return false if player turn can not move
         """
         return self.successor() != []
+
+    def is_goal(self) -> bool:
+        pass
+
+    def get_winner(self):
+        if len(self.black_player) > len(self.white_player):
+            return 'The black player wins'
+        else:
+            return 'The white player wins'

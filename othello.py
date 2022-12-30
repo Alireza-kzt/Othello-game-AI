@@ -2,7 +2,7 @@ from state import State
 
 
 class OthelloAI:
-    def minmax(self, state: State, cutoff: int, current_level=0) -> State:
+    def minmax(self, state: State, cutoff=2, current_level=0) -> State:
         if current_level == cutoff:
             return state
 
