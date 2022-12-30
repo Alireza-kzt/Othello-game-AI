@@ -84,8 +84,17 @@ class State:
     def stability(self) -> int:
         pass
 
-    def corner_score(self) -> int:
-        pass
+    def corner_score(self) -> float:
+        max_player_corners = 0
+        min_player_corners = 0
+
+        for disk in self.maximizer_disks:
+            if disk.is_corner():
+                max_player_corners += 1
+            else:
+                min_player_corners += 1
+
+        return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners)
 
     def side_score(self) -> int:
         pass

@@ -45,4 +45,6 @@ class Disk:
         return hash(self.x) + hash(self.convertor[self.y]) + hash(self.x) * hash(self.convertor[self.y]) + hash(
             self.x * self.convertor[self.y]) + hash(str(self.x) + self.convertor[self.y])
 
-
+    def is_corner(self):
+        corners = [(0, 0), (7, 7), (0, 7), (7, 0)]
+        return (self.x, self.y) in corners
