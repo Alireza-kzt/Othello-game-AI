@@ -12,13 +12,13 @@ class OthelloAI:
             return state
 
         if state.turn:
-            max(
+            return max(
                 [
                     self.minmax(node, cutoff, current_level + 1) for node in nodes
                 ]
             )
         else:
-            min(
+            return min(
                 [
                     self.minmax(node, cutoff, current_level + 1) for node in nodes
                 ]
