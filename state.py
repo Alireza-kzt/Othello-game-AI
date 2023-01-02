@@ -124,7 +124,12 @@ class State:
         return self.successor() != []
 
     def is_goal(self) -> bool:
-        pass
+        if len(self.white_player) + len(self.black_player) == 64:
+            return True
+
+        # TODO: if no action to do return True
+
+        return False
 
     def get_winner(self):
         if len(self.black_player) > len(self.white_player):
