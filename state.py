@@ -1,4 +1,6 @@
-from disk import Disk
+from typing import List, Set
+
+from disk import Disk, vectors, inv_v
 
 
 class State:
@@ -10,7 +12,7 @@ class State:
     """
     players: dict
     depth: int  # depth state
-    turn: bool  # true : white , false : black
+    turn: bool  # true : my disk , false : opponent disk
     parent: object  # parent of this state
 
     def __init__(self, *args) -> None:
@@ -23,14 +25,14 @@ class State:
             parent = args[0]
             self.players = {}
             for player, disks in parent.players.items():
-                self.players[player] = []
+                self.players[player] = set()
                 for disk in disks:
                     self.players[player].append(Disk(disk))
             self.depth = parent.depth
             self.turn = parent.turn
             self.parent = parent
 
-    def add_disk(self, disk, disks: list[Disk]) -> None:
+    def add_disk(self, disk, disks: Set[Disk]) -> None:
         """
            disk  := new disk for player turn
                type object Disk
@@ -52,8 +54,36 @@ class State:
                 h += hash(disk) * hash("white") * hash(str(self.turn))
         return h
 
-    def successor(self) -> list['State']:
-        pass
+    def successor(self, d=False) -> List['State']:
+        if d:
+            disks = self.get_opponent_disks()
+        else:
+            disks = self.get_my_disks()
+        list_state = set()
+        for disk in disks:
+            for neighbor in disk.neighbors():
+                if neighbor not in self.get_my_disks() and neighbor not in self.get_opponent_disks():
+                    v = inv_v(neighbor.v)
+                    _neighbor = neighbor.get_neighbor(v)
+                    while _neighbor is not None and _neighbor in disks:
+                        _neighbor = _neighbor.get_neighbor(v)
+                    if _neighbor in self.players[not d]:
+                        disk_must_be_change = set()
+                        for vector in vectors:
+                            neighbor_temp = neighbor.get_neighbor(vector)
+                            while neighbor_temp is not None and neighbor_temp in disks:
+                                neighbor_temp = neighbor_temp.get_neighbor(vector)
+                            if neighbor_temp not in self.players[not d]:
+                                continue
+                            vector_inv = inv_v(vector)
+                            while neighbor_temp != neighbor:
+                                disk_must_be_change.add(neighbor_temp)
+                                neighbor_temp = neighbor_temp.get_neighbor(vector_inv)
+                        state = State(self)
+                        state.add_disk(disk, disk_must_be_change)
+                        list_state.add(state)
+
+        return []
 
     def heuristic(self) -> int:
         return self.disk_difference() + self.mobility() + self.stability() + self.corner_score() + self.side_score()

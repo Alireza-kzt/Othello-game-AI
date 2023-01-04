@@ -1,3 +1,6 @@
+from typing import List
+
+
 class Disk:
     """
     - disk
@@ -52,3 +55,27 @@ class Disk:
 
     def __eq__(self, o: "Disk") -> bool:
         return o.x == self.x and o.y == self.y
+
+    def get_neighbor(self, v) -> 'Disk':
+        disk = Disk(self)
+        disk.x += v[0]
+        disk.y += v[1]
+        disk.v = v
+        if 0 <= disk.x <= 8 and 0 <= disk.y <= 8:
+            return disk
+        return None
+
+    def neighbors(self) -> List['Disk']:
+        disks = []
+        for vector in vectors:
+            disk = self.get_neighbor(vector)
+            if disk is not None:
+                disks.append(disk)
+        return disks
+
+
+vectors = {(1, 1), (1, -1), (1, 0), (-1, 1), (-1, -1), (-1, 0), (0, 1), (0, -1)}
+
+
+def inv_v(v):
+    return -v[0], -v[1]
