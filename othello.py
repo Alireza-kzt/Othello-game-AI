@@ -2,7 +2,7 @@ from state import State
 
 
 class OthelloAI:
-    def minmax(self, state: State, cutoff=2, current_level=0) -> State:
+    def minmax(self, state: State, turn: bool, cutoff=2, current_level=0) -> State:
         if current_level == cutoff:
             return state
 
@@ -11,13 +11,13 @@ class OthelloAI:
         if len(nodes) == 0:
             return state
 
-        return (max if state.turn else min)(
+        return (max if turn else min)(
             [
-                self.minmax(node, cutoff, current_level + 1) for node in nodes
+                self.minmax(node, not turn, cutoff, current_level + 1) for node in nodes
             ]
         )
 
-    def alpha_beta_minmax(self, state: State, cutoff=2, current_level=0, alpha=-1, beta=1):
+    def alpha_beta_minmax(self, state: State, turn: bool, cutoff=2, current_level=0, alpha=-1, beta=1):
         """
         alpha will represent the minimum score that the maximizing player is ensured.
         beta will represent the maximum score that the minimizing player is ensured.
@@ -33,13 +33,13 @@ class OthelloAI:
 
         scores = []
         for node in nodes:
-            scores.append(score := self.alpha_beta_minmax(node, cutoff, current_level, alpha, beta))
+            scores.append(score := self.alpha_beta_minmax(node, not turn, cutoff, current_level, alpha, beta))
 
-            if state.turn:
+            if turn:
                 alpha = max(alpha, score)
             else:
                 beta = min(beta, score)
             if beta <= alpha:
                 break
 
-        return (max if state.turn else min)(scores)
+        return (max if turn else min)(scores)
