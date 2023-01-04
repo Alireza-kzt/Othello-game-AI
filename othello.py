@@ -18,6 +18,11 @@ class OthelloAI:
         )
 
     def alpha_beta_minmax(self, state: State, cutoff=2, current_level=0, alpha=-1, beta=1):
+        """
+        alpha will represent the minimum score that the maximizing player is ensured.
+        beta will represent the maximum score that the minimizing player is ensured.
+        If beta is ever smaller than or equal to alpha, then the player can stop exploring that game tree.
+        """
         if current_level == cutoff:
             return state
 
