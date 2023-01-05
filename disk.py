@@ -61,7 +61,7 @@ class Disk:
         disk.x += v[0]
         disk.y += v[1]
         disk.v = v
-        if 0 <= disk.x <= 8 and 0 <= disk.y <= 8:
+        if 0 <= disk.x < 8 and 0 <= disk.y < 8:
             return disk
         return None
 
@@ -72,6 +72,9 @@ class Disk:
             if disk is not None:
                 disks.append(disk)
         return disks
+
+    def __str__(self) -> str:
+        return str(self.x) + " " + str(self.y)
 
 
 vectors = {(1, 1), (1, -1), (1, 0), (-1, 1), (-1, -1), (-1, 0), (0, 1), (0, -1)}
