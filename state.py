@@ -1,6 +1,6 @@
-from typing import List, Set
+from typing import Set, Tuple, Dict
 
-from disk import Disk, vectors, inv_v
+from disk import Disk, transfer_vector, inverse_vector
 
 
 class State:
@@ -46,7 +46,6 @@ class State:
         self.depth += 1
         self.turn = not self.turn
 
-
     def __hash__(self) -> int:
         h = 0
         for disks in self.players.values():
@@ -54,32 +53,50 @@ class State:
                 h += hash(disk) * hash("white") * hash(str(self.turn))
         return h
 
-    def successor(self) -> set['State']:
-        list_state = set()
-        for disk in self.get_opponent_disks():
-            for neighbor in disk.neighbors():
-                if neighbor not in self.get_my_disks() and neighbor not in self.get_opponent_disks():
-                    v = inv_v(neighbor.v)
-                    _neighbor = neighbor.get_neighbor(v)
-                    while _neighbor is not None and _neighbor in self.get_opponent_disks():
-                        _neighbor = _neighbor.get_neighbor(v)
-                    if _neighbor in self.get_my_disks():
-                        disk_must_be_change = set()
-                        for vector in vectors:
-                            neighbor_temp = neighbor.get_neighbor(vector)
-                            while neighbor_temp is not None and neighbor_temp in self.get_opponent_disks():
-                                neighbor_temp = neighbor_temp.get_neighbor(vector)
-                            if neighbor_temp not in self.get_my_disks():
-                                continue
-                            vector_inv = inv_v(vector)
-                            while neighbor_temp != neighbor:
-                                disk_must_be_change.add(neighbor_temp)
-                                neighbor_temp = neighbor_temp.get_neighbor(vector_inv)
-                        state = State(self)
-                        state.add_disk(neighbor, disk_must_be_change)
-                        list_state.add(state)
+    def successor(self) -> tuple[set['State'], dict['State', int]]:
+        """
+        :var:
+             do := disk opponent
+             ndo := neighbor disk opponent
+             tv := transfer vector
+             itv := inverse transfer vector
+             dtbv := disk transfer by vector
 
-        return list_state
+        :return: states and stability states
+        """
+        states = set()
+        stability = dict()
+
+        for do in self.get_opponent_disks():
+            for ndo in do.neighbors():
+                if ndo not in self.get_disks():
+                    itv = inverse_vector(ndo.tv)
+                    disk = self.iterates(ndo, itv)
+
+                    if disk in self.get_my_disks():
+                        disk_must_be_change = set()
+
+                        for vector in transfer_vector:
+                            dtbv = self.iterates(ndo, vector)
+
+                            if dtbv in self.get_my_disks():
+                                itv = inverse_vector(vector)
+                                while dtbv != ndo:
+                                    disk_must_be_change.add(dtbv)
+                                    dtbv = dtbv.get_neighbor(itv)
+
+                        state = State(self)
+                        state.add_disk(ndo, disk_must_be_change)
+                        states.add(state)
+                        stability[state] = len(disk_must_be_change)
+
+        return states, stability
+
+    def iterates(self, disk, vector):
+        disk = disk.get_neighbor(vector)
+        while disk is not None and disk in self.get_opponent_disks():
+            disk = disk.get_neighbor(vector)
+        return disk
 
     def heuristic(self) -> int:
         return self.disk_difference() + self.mobility() + self.stability() + self.corner_score() + self.side_score()
@@ -112,3 +129,6 @@ class State:
             return false if player turn can not move
         """
         return len(self.successor()) != 0
+
+    def get_disks(self):
+        return self.get_my_disks().union(self.get_opponent_disks())

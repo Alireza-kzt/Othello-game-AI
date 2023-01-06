@@ -22,8 +22,8 @@ for i in range(100):
         for player, disks in state.players.items():
             for disk in disks:
                 A[disk.x][disk.y] = c[player]
-        print(state.turn)
-        print(A)
+        # print(state.turn)
+        # print(A)
 t2 = datetime.datetime.now()
 print(t2-t1)
 print(len(state.players[True]))
