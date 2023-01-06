@@ -56,18 +56,22 @@ class Disk:
     def __eq__(self, o: "Disk") -> bool:
         return o.x == self.x and o.y == self.y
 
-    def get_neighbor(self, v) -> 'Disk':
+    def get_neighbor(self, tv) -> 'Disk' | None:
+        """
+        :param tv: tv is transfer vector
+        :return: neighbor disk with transfer vector if exits
+        """
         disk = Disk(self)
-        disk.x += v[0]
-        disk.y += v[1]
-        disk.v = v
+        disk.x += tv[0]
+        disk.y += tv[1]
+        disk.tv = tv
         if 0 <= disk.x < 8 and 0 <= disk.y < 8:
             return disk
         return None
 
     def neighbors(self) -> List['Disk']:
         disks = []
-        for vector in vectors:
+        for vector in transfer_vector:
             disk = self.get_neighbor(vector)
             if disk is not None:
                 disks.append(disk)
@@ -77,8 +81,8 @@ class Disk:
         return str(self.x) + " " + str(self.y)
 
 
-vectors = {(1, 1), (1, -1), (1, 0), (-1, 1), (-1, -1), (-1, 0), (0, 1), (0, -1)}
+transfer_vector = {(1, 1), (1, -1), (1, 0), (-1, 1), (-1, -1), (-1, 0), (0, 1), (0, -1)}
 
 
-def inv_v(v):
+def inverse_vector(v):
     return -v[0], -v[1]
