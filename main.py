@@ -14,8 +14,8 @@ c = {
 }
 t1 = datetime.datetime.now()
 for i in range(100):
-    if len(state.successor()) != 0:
-        state = state.successor().pop()
+    if len(state.successor()[0]) != 0:
+        state = state.successor()[0].pop()
         if not state.valid_move():
             state.turn = not state.turn
         A = np.zeros([8, 8])

@@ -56,7 +56,7 @@ class Disk:
     def __eq__(self, o: "Disk") -> bool:
         return o.x == self.x and o.y == self.y
 
-    def get_neighbor(self, tv) -> 'Disk' | None:
+    def get_neighbor(self, tv) -> 'Disk':
         """
         :param tv: tv is transfer vector
         :return: neighbor disk with transfer vector if exits
