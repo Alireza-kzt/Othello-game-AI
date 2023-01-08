@@ -122,26 +122,36 @@ class State:
         return disk
 
     def heuristic(self) -> float:
-        return self.disk_parity() + self.mobility() + self.stability() + self.corner_captured()
+        actions, flanked = self.successor()
+        opp_actions, opp_flanked = self.copy_with(not self.turn).successor()
+
+        mobility = self.mobility(actions, opp_actions)
+        stability = self.stability(flanked, opp_flanked)
+        disk_parity = self.disk_parity()
+        corner_captured = self.corner_captured()
+
+        return disk_parity + corner_captured + mobility + stability
 
     def disk_parity(self) -> float:
         max_player_disks = len(self.my_disks)
         min_player_disks = len(self.opponent_disks)
         return 100 * (max_player_disks - min_player_disks) / (max_player_disks + min_player_disks)
 
-    def mobility(self) -> float:
-        actions, _ = self.successor()
-        opponent_actions, _ = self.copy_with(not self.turn).successor()
+    def mobility(self, actions, opponent_actions) -> float:
         max_player_moves = len(actions)
         min_player_moves = len(opponent_actions)
-        return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
+        if max_player_moves + min_player_moves == 0:
+            return 0
+        else:
+            return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
 
-    def stability(self) -> float:
-        _, flanked = self.successor()
-        _, opponent_flanked = self.copy_with(not self.turn).successor()
+    def stability(self, flanked, opponent_flanked) -> float:
         max_player_stability = sum(opponent_flanked.values())
         min_player_stability = sum(flanked.values())
-        return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability)
+        if max_player_stability + min_player_stability == 0:
+            return 0
+        else:
+            return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability)
 
     def corner_captured(self) -> float:
         max_player_corners = 0
