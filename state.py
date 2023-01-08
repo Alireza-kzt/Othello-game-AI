@@ -40,7 +40,7 @@ class State:
         return h
 
     def __eq__(self, other: 'State') -> bool:
-        return self.heuristic() == other.heuristic()
+        return hash(self) == hash(other)
 
     def __gt__(self, other: 'State') -> bool:
         return self.heuristic() > other.heuristic()
@@ -130,15 +130,17 @@ class State:
         return 100 * (max_player_disks - min_player_disks) / (max_player_disks + min_player_disks)
 
     def mobility(self) -> float:
-        states, _ = self.successor()
-        max_player_moves = len(states)
-        min_player_moves = 0  # Todo: number of available moves for min player
+        actions, _ = self.successor()
+        opponent_actions, _ = self.copy_with(not self.turn).successor()
+        max_player_moves = len(actions)
+        min_player_moves = len(opponent_actions)
         return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
 
     def stability(self) -> float:
-        _, stable = self.successor()
-        max_player_stability = 0  # Todo: sum of white disk can be flank
-        min_player_stability = sum(stable.values())
+        _, flanked = self.successor()
+        _, opponent_flanked = self.copy_with(not self.turn).successor()
+        max_player_stability = sum(opponent_flanked.values())
+        min_player_stability = sum(flanked.values())
         return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability)
 
     def corner_captured(self) -> float:
@@ -153,7 +155,10 @@ class State:
             if disk.is_corner():
                 min_player_corners += 1
 
-        return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners)
+        if max_player_corners + min_player_corners == 0:
+            return 0
+        else:
+            return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners)
 
     def valid_move(self) -> bool:
         # return true if player[turn] can move else False
@@ -163,17 +168,25 @@ class State:
         return self.my_disks.union(self.opponent_disks)
 
     def is_goal(self) -> bool:
-        pass
-        # if len(self.white_player) + len(self.black_player) == 64:
-        #     return True
-        #
-        # if no action to do return True
-        #
-        # return False
+        if len(self.my_disks) + len(self.opponent_disks) == 64:
+            return True
+
+        actions, _ = self.successor()
+        opponent_actions, _ = self.copy_with(not self.turn).successor()
+
+        if len(actions) + len(opponent_actions) == 0:
+            return True
+
+        return False
 
     def get_winner(self):
-        pass
-        # if len(self.black_player) > len(self.white_player):
-        #     return 'The black player wins'
-        # else:
-        #     return 'The white player wins'
+        if len(self.players[True]) > len(self.players[True]):
+            return 'The black player wins'
+        else:
+            return 'The white player wins'
+
+    def copy_with(self, turn: bool) -> 'State':
+        state = State(self)
+        if turn is not None:
+            state.turn = turn
+        return state
