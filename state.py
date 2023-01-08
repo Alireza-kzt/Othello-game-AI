@@ -32,79 +32,12 @@ class State:
             self.turn = parent.turn
             self.parent = parent
 
-    @property
-    def maximizer_disks(self):
-        return self.white_player if self.turn else self.black_player
-
-    @property
-    def minimizer_disks(self):
-        return self.black_player if self.turn else self.white_player
-
-    def add_disk(self, disk, disks: Set[Disk]) -> None:
-        """
-           disk  := new disk for player turn
-               type object Disk
-           disks :=  list disk must be change
-        """
-        self.get_my_disks().add(disk)
-        for disk in disks:
-            if disk in self.get_opponent_disks():
-                self.get_opponent_disks().remove(disk)
-                self.get_my_disks().add(disk)
-        self.depth += 1
-        self.turn = not self.turn
-
     def __hash__(self) -> int:
         h = 0
         for disks in self.players.values():
             for disk in disks:
                 h += hash(disk) * hash("white") * hash(str(self.turn))
         return h
-
-    def successor(self) -> tuple[set['State'], dict['State', int]]:
-        """
-        :var:
-             do := disk opponent
-             ndo := neighbor disk opponent
-             tv := transfer vector
-             itv := inverse transfer vector
-             dtbv := disk transfer by vector
-
-        :return: states and stability states
-        """
-        states = set()
-        stability = dict()
-
-        for do in self.get_opponent_disks():
-            for ndo in do.neighbors():
-                if ndo not in self.get_disks():
-                    itv = inverse_vector(ndo.tv)
-                    disk = self.iterates(ndo, itv)
-
-                    if disk in self.get_my_disks():
-                        disk_must_be_change = set()
-
-                        for vector in transfer_vector:
-                            dtbv = self.iterates(ndo, vector)
-
-                            if dtbv in self.get_my_disks():
-                                itv = inverse_vector(vector)
-                                while dtbv != ndo:
-                                    disk_must_be_change.add(dtbv)
-                                    dtbv = dtbv.get_neighbor(itv)
-
-                        state = State(self)
-                        state.add_disk(ndo, disk_must_be_change)
-                        states.add(state)
-                        stability[state] = len(disk_must_be_change)
-
-        return states, stability
-
-    def iterates(self, disk, vector):
-        disk = disk.get_neighbor(vector)
-        while disk is not None and disk in self.get_opponent_disks():
-            disk = disk.get_neighbor(vector)
-        return disk
 
     def __eq__(self, other: 'State') -> bool:
         return self.heuristic() == other.heuristic()
@@ -121,12 +54,80 @@ class State:
     def __le__(self, other: 'State') -> bool:
         return self.heuristic() >= other.heuristic()
 
+    @property
+    def opponent_disks(self) -> set:
+        return self.players[not self.turn]
+
+    @property
+    def my_disks(self) -> set:
+        return self.players[self.turn]
+
+    def add_disk(self, disk, disks: Set[Disk]) -> None:
+        """
+           disk  := new disk for player turn
+               type object Disk
+           disks :=  list disk must be change
+        """
+        self.my_disks.add(disk)
+        for disk in disks:
+            if disk in self.opponent_disks:
+                self.opponent_disks.remove(disk)
+                self.my_disks.add(disk)
+        self.depth += 1
+        self.turn = not self.turn
+
+    def successor(self) -> Tuple[Set['State'], Dict['State', int]]:
+        """
+        :var:
+             do := disk opponent
+             ndo := neighbor disk opponent
+             tv := transfer vector
+             itv := inverse transfer vector
+             dtbv := disk transfer by vector
+
+        :return: states and stability states
+        """
+        states = set()
+        stability = dict()
+
+        for do in self.opponent_disks:
+            for ndo in do.neighbors():
+                if ndo not in self.get_disks():
+                    itv = inverse_vector(ndo.tv)
+                    disk = self.iterates(ndo, itv)
+
+                    if disk in self.my_disks:
+                        disk_must_be_change = set()
+
+                        for vector in transfer_vector:
+                            dtbv = self.iterates(ndo, vector)
+
+                            if dtbv in self.my_disks:
+                                itv = inverse_vector(vector)
+                                while dtbv != ndo:
+                                    disk_must_be_change.add(dtbv)
+                                    dtbv = dtbv.get_neighbor(itv)
+
+                        state = State(self)
+                        state.add_disk(ndo, disk_must_be_change)
+                        states.add(state)
+                        stability[state] = len(disk_must_be_change)
+
+        return states, stability
+
+    def iterates(self, disk, vector):
+        disk = disk.get_neighbor(vector)
+        while disk is not None and disk in self.opponent_disks:
+            disk = disk.get_neighbor(vector)
+        return disk
+
     def heuristic(self) -> float:
+
         return self.disk_parity() + self.mobility() + self.stability() + self.corner_captured()
 
     def disk_parity(self) -> float:
-        max_player_disks = len(self.maximizer_disks)
-        min_player_disks = len(self.maximizer_disks)
+        max_player_disks = len(self.my_disks)
+        min_player_disks = len(self.my_disks)
         return 100 * (max_player_disks - min_player_disks) / (max_player_disks + min_player_disks)
 
     def mobility(self) -> float:
@@ -143,43 +144,37 @@ class State:
         max_player_corners = 0
         min_player_corners = 0
 
-        for disk in self.maximizer_disks:
+        for disk in self.my_disks:
             if disk.is_corner():
                 max_player_corners += 1
 
-        for disk in self.minimizer_disks:
+        for disk in self.opponent_disks:
             if disk.is_corner():
                 min_player_corners += 1
 
         return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners)
 
-    def get_opponent_disks(self) -> set:
-        return self.players[not self.turn]
-
-    def get_my_disks(self) -> set:
-        return self.players[self.turn]
-
     def valid_move(self) -> bool:
         """
-            - valid_move
-            return true if player turn can move
-            return false if player turn can not move
+            return true if player[turn] can move else False
         """
         return len(self.successor()) != 0
 
     def get_disks(self):
-        return self.get_my_disks().union(self.get_opponent_disks())
+        return self.my_disks.union(self.opponent_disks)
 
     def is_goal(self) -> bool:
-        if len(self.white_player) + len(self.black_player) == 64:
-            return True
-
-        # TODO: if no action to do return True
-
-        return False
+        pass
+        # if len(self.white_player) + len(self.black_player) == 64:
+        #     return True
+        #
+        # if no action to do return True
+        #
+        # return False
 
     def get_winner(self):
-        if len(self.black_player) > len(self.white_player):
-            return 'The black player wins'
-        else:
-            return 'The white player wins'
+        pass
+        # if len(self.black_player) > len(self.white_player):
+        #     return 'The black player wins'
+        # else:
+        #     return 'The white player wins'
