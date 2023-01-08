@@ -6,7 +6,7 @@ class OthelloAI:
         if current_level == cutoff:
             return state
 
-        nodes = state.successor()
+        nodes, _ = state.successor()
 
         if len(nodes) == 0:
             return state
@@ -26,7 +26,7 @@ class OthelloAI:
         if current_level == cutoff:
             return state
 
-        nodes = state.successor()
+        nodes, _ = state.successor()
 
         if len(nodes) == 0:
             return state
