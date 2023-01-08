@@ -10,6 +10,7 @@ if __name__ == '__main__':
     state = State()  # init state
 
     while not state.is_goal():
+        state.render()
         next_state = black_player.minmax(state, state.turn) if state.turn else white_player.minmax(state, state.turn)
         state = next_state if state is not None else state
 

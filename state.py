@@ -200,3 +200,15 @@ class State:
         if turn is not None:
             state.turn = turn
         return state
+
+    def render(self):
+        for i in range(8):
+            for j in range(8):
+                if Disk(i, j) in self.players[True]:
+                    print('#', end=' ')
+                elif Disk(i, j) in self.players[False]:
+                    print('*', end=' ')
+                else:
+                    print('.', end=' ')
+            print()
+        print()
