@@ -122,22 +122,23 @@ class State:
         return disk
 
     def heuristic(self) -> float:
-
         return self.disk_parity() + self.mobility() + self.stability() + self.corner_captured()
 
     def disk_parity(self) -> float:
         max_player_disks = len(self.my_disks)
-        min_player_disks = len(self.my_disks)
+        min_player_disks = len(self.opponent_disks)
         return 100 * (max_player_disks - min_player_disks) / (max_player_disks + min_player_disks)
 
     def mobility(self) -> float:
-        max_player_moves = len(self.successor())
+        states, _ = self.successor()
+        max_player_moves = len(states)
         min_player_moves = 0  # Todo: number of available moves for min player
         return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
 
     def stability(self) -> float:
-        max_player_stability = 0  # Todo: rate of white disk can be flank
-        min_player_stability = 0  # Todo: rate of black disk can be flank
+        _, stable = self.successor()
+        max_player_stability = 0  # Todo: sum of white disk can be flank
+        min_player_stability = sum(stable.values())
         return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability)
 
     def corner_captured(self) -> float:
@@ -155,9 +156,7 @@ class State:
         return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners)
 
     def valid_move(self) -> bool:
-        """
-            return true if player[turn] can move else False
-        """
+        # return true if player[turn] can move else False
         return len(self.successor()) != 0
 
     def get_disks(self):
