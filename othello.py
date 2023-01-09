@@ -1,8 +1,9 @@
 from state import State
+import math
 
 
 class OthelloAI:
-    def action(self, state: State, level=2):
+    def action(self, state: State, level=2) -> State:
         node = self.minmax(state, state.turn, level, is_max=state.turn)
 
         while node.parent != state:
@@ -25,7 +26,7 @@ class OthelloAI:
             ]
         )
 
-    def alpha_beta_minmax(self, state: State, turn: bool, cutoff=2, current_level=0, alpha=-1, beta=1):
+    def alpha_beta_minmax(self, state: State, turn: bool, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True):
         """
         alpha will represent the minimum score that the maximizing player is ensured.
         beta will represent the maximum score that the minimizing player is ensured.
@@ -41,12 +42,14 @@ class OthelloAI:
 
         scores = []
         for node in nodes:
-            scores.append(score := self.alpha_beta_minmax(node, not turn, cutoff, current_level, alpha, beta))
+            scores.append(
+                score := self.alpha_beta_minmax(node.copy_with(is_max), not turn, cutoff, current_level, alpha, beta, is_max),
+            )
 
             if turn:
-                alpha = max(alpha, score)
+                alpha = max(alpha, score.heuristic())
             else:
-                beta = min(beta, score)
+                beta = min(beta, score.heuristic())
             if beta <= alpha:
                 break
 
