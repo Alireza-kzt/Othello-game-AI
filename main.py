@@ -11,6 +11,6 @@ if __name__ == '__main__':
         state.render()
         state = black_player.action(state, level=3) if state.turn else white_player.action(state, level=1)
 
-    black_score, white_score = state.get_winner()
+    black_score, white_score = state.get_scores()
     print(r'Black player score: ', black_score)
     print(r'White player score: ', white_score)

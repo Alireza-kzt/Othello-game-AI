@@ -34,7 +34,7 @@ class OthelloAI:
         if current_level == cutoff:
             return state
 
-        nodes, _ = state.successor()
+        nodes, _ = state.copy_with(turn).successor()
 
         if len(nodes) == 0:
             return state
