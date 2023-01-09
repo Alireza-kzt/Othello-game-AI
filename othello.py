@@ -2,18 +2,26 @@ from state import State
 
 
 class OthelloAI:
-    def minmax(self, state: State, turn: bool, cutoff=2, current_level=0) -> State:
+    def action(self, state: State, level=2):
+        node = self.minmax(state, state.turn, level, is_max=state.turn)
+
+        while node.parent != state:
+            node = node.parent
+
+        return node.copy_with(not state.turn)
+
+    def minmax(self, state: State, turn: bool, cutoff=2, current_level=0, is_max=True) -> State:
         if current_level == cutoff:
             return state
 
-        nodes, _ = state.successor()
+        nodes, _ = state.copy_with(turn).successor()
 
         if len(nodes) == 0:
             return state
 
         return (max if turn else min)(
             [
-                self.minmax(node, not turn, cutoff, current_level + 1) for node in nodes
+                self.minmax(node.copy_with(is_max), not turn, cutoff, current_level + 1, is_max) for node in nodes
             ]
         )
 

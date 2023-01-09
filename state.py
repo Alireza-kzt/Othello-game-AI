@@ -148,6 +148,7 @@ class State:
     def stability(self, flanked, opponent_flanked) -> float:
         max_player_stability = sum(opponent_flanked.values())
         min_player_stability = sum(flanked.values())
+
         if max_player_stability + min_player_stability == 0:
             return 0
         else:
@@ -189,25 +190,26 @@ class State:
 
         return False
 
-    def get_winner(self):
-        if len(self.players[True]) > len(self.players[True]):
-            return 'The black player wins'
-        else:
-            return 'The white player wins'
-
     def copy_with(self, turn: bool) -> 'State':
         state = State(self)
         if turn is not None:
             state.turn = turn
+
         return state
+
+    def get_scores(self):
+        black_score = len(self.players[True])
+        white_score = len(self.players[False])
+
+        return black_score, white_score
 
     def render(self):
         for i in range(8):
             for j in range(8):
                 if Disk(i, j) in self.players[True]:
-                    print('#', end=' ')
+                    print('O', end=' ')
                 elif Disk(i, j) in self.players[False]:
-                    print('*', end=' ')
+                    print('X', end=' ')
                 else:
                     print('.', end=' ')
             print()
