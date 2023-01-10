@@ -27,11 +27,13 @@ class OthelloAI:
 
         return (max if turn else min)(
             [
-                self.minmax(node.copy_with(self.player), not turn, cutoff, current_level + 1, not is_max) for node in nodes
+                self.minmax(node.copy_with(self.player), not turn, cutoff, current_level + 1, not is_max) for node in
+                nodes
             ]
         )
 
-    def alpha_beta(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
+    def alpha_beta(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf,
+                   is_max=True) -> State:
         """
         alpha will represent the minimum score that the maximizing player is ensured.
         beta will represent the maximum score that the minimizing player is ensured.
@@ -48,7 +50,8 @@ class OthelloAI:
         nods = []
         for node in nodes:
             nods.append(
-                node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta, not is_max)
+                node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta,
+                                        not is_max)
             )
 
             if turn:
@@ -65,7 +68,7 @@ class OthelloAI:
         
         if type(states) is not type([]):
             states = [states]
-            
+
         if current_level == cutoff:
             return (max if turn else min)(states)
 
@@ -75,14 +78,13 @@ class OthelloAI:
             for child in nodes:
                 if child not in chileds:
                     chileds.append(child)
-        chileds.sort(key = lambda state: state.heuristic() if turn else -state.heuristic())
+        chileds.sort(key = lambda state: -state.heuristic() if is_max else state.heuristic())
         
         chileds = chileds[:n]
-        
+
         if len(chileds) == 0:
             return (max if turn else min)(states)
 
         return (max if turn else min)(
             [self.forward(chileds, not turn, cutoff, current_level + 1, n, not is_max)]
         )
-
