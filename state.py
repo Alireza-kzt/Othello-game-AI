@@ -155,10 +155,11 @@ class State:
     def mobility(self, actions, opponent_actions) -> float:
         max_player_moves = len(actions)
         min_player_moves = len(opponent_actions)
+
         if max_player_moves + min_player_moves == 0:
             return 0
         else:
-            return 100 * max_player_moves / (max_player_moves + min_player_moves)
+            return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
 
     def stability(self, flanked, opponent_flanked) -> float:
         max_player_stability = sum(opponent_flanked.values())
