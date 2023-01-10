@@ -11,7 +11,7 @@ class OthelloAI:
 
         return node.copy_with(not state.turn)
 
-    def minmax(self, state: State, turn: bool, cutoff=2, current_level=0, is_max=True) -> State:
+    def minmax(self, state: State, turn: bool, cutoff: int, current_level=0, is_max=True) -> State:
         if current_level == cutoff:
             return state
 
@@ -26,7 +26,7 @@ class OthelloAI:
             ]
         )
 
-    def alpha_beta_minmax(self, state: State, turn: bool, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True):
+    def alpha_beta(self, state: State, turn: bool, cutoff: int, current_level=0, alpha=-1, beta=1, is_max=True) -> State:
         """
         alpha will represent the minimum score that the maximizing player is ensured.
         beta will represent the maximum score that the minimizing player is ensured.
@@ -43,7 +43,7 @@ class OthelloAI:
         scores = []
         for node in nodes:
             scores.append(
-                score := self.alpha_beta_minmax(node.copy_with(is_max), not turn, cutoff, current_level, alpha, beta, is_max),
+                score := self.alpha_beta(node.copy_with(is_max), not turn, cutoff, current_level, alpha, beta, is_max),
             )
 
             if turn:
