@@ -10,6 +10,7 @@ class OthelloAI:
 
     def action(self, state: State, level=None) -> State:
         if level is None:
+            print(math.ceil(math.sqrt(abs(state.depth - 32))) + 1)
             node = self.forward(state, cutoff=math.ceil(math.sqrt(abs(state.depth - 32)))//2 + 1, is_max=state.turn)
         else:
             node = self.forward(state, cutoff=level, is_max=state.turn)
@@ -65,6 +66,25 @@ class OthelloAI:
         return (max if turn else min)(children)
 
     def forward(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
+        """forward pruning
+
+        Args:
+            state (State): root state
+            turn (bool, optional): maximizer or minimazer. Defaults to True.
+            cutoff (int, optional): depth cut off. Defaults to 2.
+            current_level (int, optional): depth now. Defaults to 0.
+            alpha (_type_, optional): Defaults to -math.inf.
+            beta (_type_, optional): Defaults to math.inf.
+            is_max (bool, optional): turn player. Defaults to True.
+
+        Returns:
+            State: best state
+            
+        Complexity:
+            T(n) = 2 , n < 2
+            T(n) = T(n/2) , maximum value n is 16 ( branch factor )
+            T(n) in Log2(n)
+        """
         if current_level == cutoff:
             return state
 

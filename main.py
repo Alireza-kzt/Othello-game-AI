@@ -13,7 +13,7 @@ if __name__ == '__main__':
 
     while not state.is_goal():
         action_start = datetime.now()
-        state = black_player.action(state) if state.turn else white_player.action(state)
+        state = black_player.action(state,level=3) if state.turn else white_player.action(state,level=3)
         state.render()
         print(datetime.now() - action_start)
 
