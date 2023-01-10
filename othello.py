@@ -1,6 +1,5 @@
 from state import State
 import math
-from typing import List
 
 
 class OthelloAI:
@@ -20,23 +19,23 @@ class OthelloAI:
 
         return node.copy_with(not state.turn)
 
-    def minmax(self, state: State, turn=True, cutoff=2, current_level=0, is_max=True) -> State:
+    def minmax(self, state: State, turn=True, cutoff=2, current_level=0, is_black=True) -> State:
         if current_level == cutoff:
             return state
 
-        nodes, _ = state.copy_with(is_max).successor()
+        nodes, _ = state.copy_with(is_black).successor()
 
         if len(nodes) == 0:
             return state
 
         return (max if turn else min)(
             [
-                self.minmax(node.copy_with(self.player), not turn, cutoff, current_level + 1, not is_max) for node in
-                nodes
+                self.minmax(node.copy_with(self.player), not turn, cutoff, current_level + 1, not is_black) for node in nodes
             ]
         )
 
-    def alpha_beta(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
+    def alpha_beta(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf,
+                   is_black=True) -> State:
         """
         alpha will represent the minimum score that the maximizing player is ensured.
         beta will represent the maximum score that the minimizing player is ensured.
@@ -45,7 +44,7 @@ class OthelloAI:
         if current_level == cutoff:
             return state
 
-        nodes, _ = state.copy_with(is_max).successor()
+        nodes, _ = state.copy_with(is_black).successor()
 
         if len(nodes) == 0:
             return state
@@ -53,7 +52,7 @@ class OthelloAI:
         children = []
         for node in nodes:
             children.append(
-                node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta, not is_max)
+                node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta, not is_black)
             )
 
             if turn:
@@ -65,7 +64,7 @@ class OthelloAI:
 
         return (max if turn else min)(children)
 
-    def forward(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
+    def forward(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_black=True) -> State:
         """forward pruning
 
         Args:
@@ -75,7 +74,7 @@ class OthelloAI:
             current_level (int, optional): depth now. Defaults to 0.
             alpha (_type_, optional): Defaults to -math.inf.
             beta (_type_, optional): Defaults to math.inf.
-            is_max (bool, optional): turn player. Defaults to True.
+            is_black (bool, optional): turn player. Defaults to True.
 
         Returns:
             State: best state
@@ -88,7 +87,7 @@ class OthelloAI:
         if current_level == cutoff:
             return state
 
-        nodes, _ = state.copy_with(is_max).successor()
+        nodes, _ = state.copy_with(is_black).successor()
 
         if len(nodes) == 0:
             return state
@@ -99,13 +98,13 @@ class OthelloAI:
                 pruned.append(node.copy_with(self.player))
 
         pruned.sort(reverse=turn)
-        pruning_size = int(len(pruned) / 2) if len(pruned) > 2 else len(pruned)
+        pruning_size = int(len(pruned) * 0.75) if len(pruned) > 2 else len(pruned)
         pruned = pruned[:pruning_size]
 
         children = []
         for node in pruned:
             children.append(
-                node := self.forward(node, not turn, cutoff, current_level + 1, alpha, beta, not is_max)
+                node := self.forward(node, not turn, cutoff, current_level + 1, alpha, beta, not is_black)
             )
 
             if turn:
