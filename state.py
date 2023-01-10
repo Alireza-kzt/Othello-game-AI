@@ -33,6 +33,9 @@ class State:
             self.depth = parent.depth
             self.turn = parent.turn
             self.parent = parent
+        self.successor_opponent_value = None
+        self.successor_value = None
+
 
     def __hash__(self) -> int:
         h = 0
@@ -42,7 +45,7 @@ class State:
         return h
 
     def __eq__(self, other: 'State') -> bool:
-        return hash(self) == hash(other)
+        return self.heuristic(self) == self.heuristic(other)
 
     def __gt__(self, other: 'State') -> bool:
         return self.heuristic() > other.heuristic()
@@ -77,6 +80,7 @@ class State:
                 self.my_disks.add(disk)
         self.depth += 1
         self.turn = not self.turn
+
         
     def successor_opponent(self) -> Tuple[Set['State'], Dict['State', int]]:
         if self.successor_opponent_value is None:
