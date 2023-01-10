@@ -167,7 +167,7 @@ class State:
         if max_player_stability + min_player_stability == 0:
             return 0
         else:
-            return - 100 * max_player_stability / (max_player_stability + min_player_stability)
+            return 100 * (min_player_stability - max_player_stability) / (max_player_stability + min_player_stability)
 
     def corner_captured(self) -> float:
         max_player_corners = 0
