@@ -14,6 +14,8 @@ class State:
     depth: int  # depth state
     turn: bool  # true : my disk , false : opponent disk
     parent: object  # parent of this state
+    successor_value: tuple
+    successor_opponent_value: tuple
 
     def __init__(self, *args) -> None:
         if len(args) == 0:
@@ -75,6 +77,11 @@ class State:
                 self.my_disks.add(disk)
         self.depth += 1
         self.turn = not self.turn
+        
+    def successor_opponent(self) -> Tuple[Set['State'], Dict['State', int]]:
+        if self.successor_opponent_value is None:
+            self.successor_opponent_value = self.copy_with(not self.turn).successor()
+        return self.successor_opponent_value
 
     def successor(self) -> Tuple[Set['State'], Dict['State', int]]:
         """
@@ -87,6 +94,10 @@ class State:
 
         :return: states and stability states
         """
+        
+        if self.successor_value is not None:
+            return self.successor_value
+        
         states = set()
         stability = dict()
 
@@ -112,8 +123,8 @@ class State:
                         state.add_disk(ndo, disk_must_be_change)
                         states.add(state)
                         stability[state] = len(disk_must_be_change)
-
-        return states, stability
+        self.successor_value = states, stability
+        return self.successor_value
 
     def iterates(self, disk, vector):
         disk = disk.get_neighbor(vector)
@@ -123,7 +134,7 @@ class State:
 
     def heuristic(self) -> float:
         actions, flanked = self.successor()
-        opp_actions, opp_flanked = self.copy_with(not self.turn).successor()
+        opp_actions, opp_flanked = self.successor_opponent()
 
         mobility = self.mobility(actions, opp_actions)
         stability = self.stability(flanked, opp_flanked)
@@ -180,7 +191,7 @@ class State:
             return True
 
         actions, _ = self.successor()
-        opponent_actions, _ = self.copy_with(not self.turn).successor()
+        opponent_actions, _ = self.successor_opponent()
 
         if len(actions) + len(opponent_actions) == 0:
             return True
