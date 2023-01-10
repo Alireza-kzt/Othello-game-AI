@@ -45,7 +45,7 @@ class State:
         return h
 
     def __eq__(self, other: 'State') -> bool:
-        return self.heuristic(self) == self.heuristic(other)
+        return self.heuristic() == other.heuristic()
 
     def __gt__(self, other: 'State') -> bool:
         return self.heuristic() > other.heuristic()
@@ -167,7 +167,7 @@ class State:
         if max_player_stability + min_player_stability == 0:
             return 0
         else:
-            return 100 * max_player_stability / (max_player_stability + min_player_stability)
+            return - 100 * max_player_stability / (max_player_stability + min_player_stability)
 
     def corner_captured(self) -> float:
         max_player_corners = 0
