@@ -65,11 +65,19 @@ class OthelloAI:
 
 
     def forward(self, states: List[State], turn=True, cutoff=2, current_level=0, n=5, is_max=True):
-        
-        if type(states) is not type([]):
-            states = [states]
+        """
+        - forward pruning
+            states : list of state 
+            turn : 
+            cutoff : max level depth tree
+            current_level : current level tree 
+            n : keept best n chiled and pruning others
+            is_max : 
+        """
+        if type(states) is not type([]): # init 
+            states = [states] # consider root state as a list
 
-        if current_level == cutoff:
+        if current_level == cutoff: 
             return (max if turn else min)(states)
 
         chileds = []
@@ -77,11 +85,11 @@ class OthelloAI:
             nodes, _ = state.copy_with(is_max).successor()
             for child in nodes:
                 if child not in chileds:
-                    chileds.append(child)
-        chileds.sort(key = lambda state: -state.heuristic() if is_max else state.heuristic())
-        
+                    chileds.append(child.copy_with(self.player))
+                    
+        chileds.sort(key = lambda state: state.heuristic(),reverse=is_max) 
         chileds = chileds[:n]
-
+        
         if len(chileds) == 0:
             return (max if turn else min)(states)
 
