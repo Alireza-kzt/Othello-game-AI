@@ -10,9 +10,9 @@ class OthelloAI:
     def action(self, state: State, level=None) -> State:
         if level is None:
             print(math.ceil(math.sqrt(abs(state.depth - 32))) + 1)
-            node = self.forward(state, cutoff=math.ceil(math.sqrt(abs(state.depth - 32)))//2 + 1, is_max=state.turn)
+            node = self.forward(state, cutoff=math.ceil(math.sqrt(abs(state.depth - 32)))//2 + 1, is_black=state.turn)
         else:
-            node = self.forward(state, cutoff=level, is_max=state.turn)
+            node = self.forward(state, cutoff=level, is_black=state.turn)
 
         while node.parent != state and node != state:
             node = node.parent
