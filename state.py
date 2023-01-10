@@ -1,5 +1,6 @@
 from typing import Set, Tuple, Dict
 from disk import Disk, transfer_vector, inverse_vector
+from states_table import StatesTable
 
 
 class State:
@@ -34,7 +35,6 @@ class State:
             self.parent = parent
         self.successor_opponent_value = None
         self.successor_value = None
-
 
     def __hash__(self) -> int:
         h = 0
@@ -80,7 +80,6 @@ class State:
         self.depth += 1
         self.turn = not self.turn
 
-        
     def successor_opponent(self) -> Tuple[Set['State'], Dict['State', int]]:
         if self.successor_opponent_value is None:
             self.successor_opponent_value = self.copy_with(not self.turn).successor()
@@ -97,9 +96,9 @@ class State:
 
         :return: states and stability states
         """
-        from main import states, add_state
-        if states.get(hash(self)) is not None:
-            state = states.get(hash(self))
+        state = StatesTable.get_state(hash(self))
+
+        if state is not None:
             if state.successor_value is not None:
                 self.successor_value = state.successor_value
                 for state in self.successor_value[0]:
@@ -108,10 +107,10 @@ class State:
                 self.successor_opponent_value = state.successor_opponent_value
                 for state in self.successor_opponent_value[0]:
                     state.parent = self
-        
+
         if self.successor_value is not None:
             return self.successor_value
-        
+
         states = set()
         stability = dict()
         inserted = set()
@@ -141,7 +140,7 @@ class State:
                             stability[state] = len(disk_must_be_change)
                             inserted.add(ndo)
         self.successor_value = states, stability
-        add_state(self)
+        StatesTable.add_state(self)
         return self.successor_value
 
     def iterates(self, disk, vector):
@@ -159,7 +158,7 @@ class State:
         disk_parity = self.disk_parity()
         corner_captured = self.corner_captured()
 
-        return 2 * disk_parity + corner_captured + mobility + stability
+        return disk_parity + corner_captured + mobility + stability
 
     def disk_parity(self) -> float:
         max_player_disks = len(self.my_disks)
@@ -196,7 +195,7 @@ class State:
             if disk.is_corner():
                 min_player_corners += 1
 
-        return 25 * (max_player_corners - min_player_corners)
+        return 100 * (max_player_corners - min_player_corners) / 4
 
     def valid_move(self) -> bool:
         # return true if player[turn] can move else False
