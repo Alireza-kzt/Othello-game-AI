@@ -158,7 +158,7 @@ class State:
         disk_parity = self.disk_parity()
         corner_captured = self.corner_captured()
 
-        return disk_parity + corner_captured + mobility + stability
+        return 2 * disk_parity + corner_captured + mobility + stability
 
     def disk_parity(self) -> float:
         max_player_disks = len(self.my_disks)

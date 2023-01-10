@@ -9,7 +9,7 @@ class OthelloAI:
         super().__init__()
 
     def action(self, state: State, level=2) -> State:
-        node = self.alpha_beta(state, cutoff=level, is_max=state.turn)
+        node = self.forward(state, cutoff=level, is_max=state.turn)
 
         while node.parent != state and node != state:
             node = node.parent
@@ -32,8 +32,7 @@ class OthelloAI:
             ]
         )
 
-    def alpha_beta(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf,
-                   is_max=True) -> State:
+    def alpha_beta(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
         """
         alpha will represent the minimum score that the maximizing player is ensured.
         beta will represent the maximum score that the minimizing player is ensured.
@@ -47,9 +46,9 @@ class OthelloAI:
         if len(nodes) == 0:
             return state
 
-        nods = []
+        children = []
         for node in nodes:
-            nods.append(
+            children.append(
                 node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta, not is_max)
             )
 
@@ -60,37 +59,37 @@ class OthelloAI:
             if beta <= alpha:
                 break
 
-        return (max if turn else min)(nods)
+        return (max if turn else min)(children)
 
-    def forward(self, states: List[State], turn=True, cutoff=2, current_level=0, n=5, is_max=True):
-        """
-        - forward pruning
-            states : list of state 
-            turn : 
-            cutoff : max level depth tree
-            current_level : current level tree 
-            n : keept best n chiled and pruning others
-            is_max : 
-        """
-        if type(states) is not List:  # init
-            states = [states]  # consider root state as a list
-
+    def forward(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
         if current_level == cutoff:
-            return (max if turn else min)(states)
+            return state
+
+        nodes, _ = state.copy_with(is_max).successor()
+
+        if len(nodes) == 0:
+            return state
+
+        pruned = []
+        for node in nodes:
+            if node not in pruned:
+                pruned.append(node.copy_with(self.player))
+
+        pruned.sort(reverse=turn)
+        pruning_size = int(len(pruned) / 2) if len(pruned) > 2 else len(pruned)
+        pruned = pruned[:pruning_size]
 
         children = []
-        for state in states:
-            nodes, _ = state.copy_with(is_max).successor()
-            for child in nodes:
-                if child not in children:
-                    children.append(child.copy_with(self.player))
+        for node in pruned:
+            children.append(
+                node := self.forward(node, not turn, cutoff, current_level + 1, alpha, beta, not is_max)
+            )
 
-        children.sort(key=lambda s: s.heuristic(), reverse=not turn)
-        children = children[:n]
+            if turn:
+                alpha = max(alpha, node.heuristic())
+            else:
+                beta = min(beta, node.heuristic())
+            if beta <= alpha:
+                break
 
-        if len(children) == 0:
-            return (max if turn else min)(states)
-
-        return (max if turn else min)(
-            [self.forward(children, not turn, cutoff, current_level + 1, n, not is_max)]
-        )
+        return (max if turn else min)(children)
