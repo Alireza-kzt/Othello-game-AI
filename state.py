@@ -45,7 +45,7 @@ class State:
         return h
 
     def __eq__(self, other: 'State') -> bool:
-        return self.heuristic(self) == self.heuristic(other)
+        return hash(self) == hash(other)
 
     def __gt__(self, other: 'State') -> bool:
         return self.heuristic() > other.heuristic()
