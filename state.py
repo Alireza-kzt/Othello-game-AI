@@ -1,5 +1,4 @@
 from typing import Set, Tuple, Dict
-
 from disk import Disk, transfer_vector, inverse_vector
 
 
@@ -98,36 +97,51 @@ class State:
 
         :return: states and stability states
         """
+        from main import states, add_state
+        if states.get(hash(self)) is not None:
+            state = states.get(hash(self))
+            if state.successor_value is not None:
+                self.successor_value = state.successor_value
+                for state in self.successor_value[0]:
+                    state.parent = self
+            if state.successor_opponent_value is not None:
+                self.successor_opponent_value = state.successor_opponent_value
+                for state in self.successor_opponent_value[0]:
+                    state.parent = self
         
         if self.successor_value is not None:
             return self.successor_value
         
         states = set()
         stability = dict()
+        inserted = set()
 
         for do in self.opponent_disks:
             for ndo in do.neighbors():
-                if ndo not in self.get_disks():
-                    itv = inverse_vector(ndo.tv)
-                    disk = self.iterates(ndo, itv)
+                if ndo not in inserted:
+                    if ndo not in self.get_disks():
+                        itv = inverse_vector(ndo.tv)
+                        disk = self.iterates(ndo, itv)
 
-                    if disk in self.my_disks:
-                        disk_must_be_change = set()
+                        if disk in self.my_disks:
+                            disk_must_be_change = set()
 
-                        for vector in transfer_vector:
-                            dtbv = self.iterates(ndo, vector)
+                            for vector in transfer_vector:
+                                dtbv = self.iterates(ndo, vector)
 
-                            if dtbv in self.my_disks:
-                                itv = inverse_vector(vector)
-                                while dtbv != ndo:
-                                    disk_must_be_change.add(dtbv)
-                                    dtbv = dtbv.get_neighbor(itv)
+                                if dtbv in self.my_disks:
+                                    itv = inverse_vector(vector)
+                                    while dtbv != ndo:
+                                        disk_must_be_change.add(dtbv)
+                                        dtbv = dtbv.get_neighbor(itv)
 
-                        state = State(self)
-                        state.add_disk(ndo, disk_must_be_change)
-                        states.add(state)
-                        stability[state] = len(disk_must_be_change)
+                            state = State(self)
+                            state.add_disk(ndo, disk_must_be_change)
+                            states.add(state)
+                            stability[state] = len(disk_must_be_change)
+                            inserted.add(ndo)
         self.successor_value = states, stability
+        add_state(self)
         return self.successor_value
 
     def iterates(self, disk, vector):
