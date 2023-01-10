@@ -9,7 +9,7 @@ class OthelloAI:
         super().__init__()
 
     def action(self, state: State, level=2) -> State:
-        node = self.forward(state, cutoff=level, is_max=state.turn)
+        node = self.alpha_beta(state, cutoff=level, is_max=state.turn)
 
         while node.parent != state and node != state:
             node = node.parent
@@ -50,8 +50,7 @@ class OthelloAI:
         nods = []
         for node in nodes:
             nods.append(
-                node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta,
-                                        not is_max)
+                node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta, not is_max)
             )
 
             if turn:
@@ -63,7 +62,6 @@ class OthelloAI:
 
         return (max if turn else min)(nods)
 
-
     def forward(self, states: List[State], turn=True, cutoff=2, current_level=0, n=5, is_max=True):
         """
         - forward pruning
@@ -74,25 +72,25 @@ class OthelloAI:
             n : keept best n chiled and pruning others
             is_max : 
         """
-        if type(states) is not type([]): # init 
-            states = [states] # consider root state as a list
+        if type(states) is not List:  # init
+            states = [states]  # consider root state as a list
 
-        if current_level == cutoff: 
+        if current_level == cutoff:
             return (max if turn else min)(states)
 
-        chileds = []
+        children = []
         for state in states:
             nodes, _ = state.copy_with(is_max).successor()
             for child in nodes:
-                if child not in chileds:
-                    chileds.append(child.copy_with(self.player))
-                    
-        chileds.sort(key = lambda state: state.heuristic(),reverse= not turn) 
-        chileds = chileds[:n]
-        
-        if len(chileds) == 0:
+                if child not in children:
+                    children.append(child.copy_with(self.player))
+
+        children.sort(key=lambda s: s.heuristic(), reverse=not turn)
+        children = children[:n]
+
+        if len(children) == 0:
             return (max if turn else min)(states)
 
         return (max if turn else min)(
-            [self.forward(chileds, not turn, cutoff, current_level + 1, n, not is_max)]
+            [self.forward(children, not turn, cutoff, current_level + 1, n, not is_max)]
         )
