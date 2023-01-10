@@ -9,7 +9,7 @@ class OthelloAI:
         super().__init__()
 
     def action(self, state: State, level=2) -> State:
-        node = self.forward(state, cutoff=level, is_max=state.turn)
+        node = self.alpha_beta(state, cutoff=level, is_max=state.turn)
 
         while node.parent != state and node != state:
             node = node.parent

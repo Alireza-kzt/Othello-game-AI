@@ -53,12 +53,15 @@ class Disk:
         return hash(self.x) + hash(self.convertor[self.y]) + hash(self.x) * hash(self.convertor[self.y]) + hash(
             self.x * self.convertor[self.y]) + hash(str(self.x) + self.convertor[self.y])
 
-    def is_corner(self):
-        corners = [(0, 0), (7, 7), (0, 7), (7, 0)]
-        return (self.x, self.y) in corners
+    def __str__(self) -> str:
+        return str(self.x) + " " + str(self.y)
 
     def __eq__(self, o: "Disk") -> bool:
         return o.x == self.x and o.y == self.y
+
+    def is_corner(self):
+        corners = [(0, 0), (7, 7), (0, 7), (7, 0)]
+        return (self.x, self.y) in corners
 
     def get_neighbor(self, tv) -> 'Disk':
         """
@@ -80,9 +83,6 @@ class Disk:
             if disk is not None:
                 disks.append(disk)
         return disks
-
-    def __str__(self) -> str:
-        return str(self.x) + " " + str(self.y)
 
 
 transfer_vector = {(1, 1), (1, -1), (1, 0), (-1, 1), (-1, -1), (-1, 0), (0, 1), (0, -1)}
