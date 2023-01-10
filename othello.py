@@ -8,8 +8,11 @@ class OthelloAI:
         self.player = player
         super().__init__()
 
-    def action(self, state: State, level=2) -> State:
-        node = self.forward(state, cutoff=level, is_max=state.turn)
+    def action(self, state: State, level=None) -> State:
+        if level is None:
+            node = self.forward(state, cutoff=math.ceil(math.sqrt(abs(state.depth - 32)))//2 + 1, is_max=state.turn)
+        else:
+            node = self.forward(state, cutoff=level, is_max=state.turn)
 
         while node.parent != state and node != state:
             node = node.parent
