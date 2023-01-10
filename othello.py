@@ -3,30 +3,34 @@ import math
 
 
 class OthelloAI:
-    def action(self, state: State, level=2) -> State:
-        node = self.alpha_beta(state, state.turn, level, is_max=state.turn)
+    def __init__(self, player) -> None:
+        self.player = player
+        super().__init__()
 
-        while node.parent != state:
+    def action(self, state: State, level=2) -> State:
+        node = self.alpha_beta(state, cutoff=level, is_max=state.turn)
+
+        while node.parent != state and node != state:
             node = node.parent
 
         return node.copy_with(not state.turn)
 
-    def minmax(self, state: State, turn: bool, cutoff: int, current_level=0, is_max=True) -> State:
+    def minmax(self, state: State, turn=True, cutoff=2, current_level=0, is_max=True) -> State:
         if current_level == cutoff:
             return state
 
-        nodes, _ = state.copy_with(turn).successor()
+        nodes, _ = state.copy_with(is_max).successor()
 
         if len(nodes) == 0:
             return state
 
         return (max if turn else min)(
             [
-                self.minmax(node.copy_with(is_max), not turn, cutoff, current_level + 1, is_max) for node in nodes
+                self.minmax(node.copy_with(self.player), not turn, cutoff, current_level + 1, not is_max) for node in nodes
             ]
         )
 
-    def alpha_beta(self, state: State, turn: bool, cutoff: int, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
+    def alpha_beta(self, state: State, turn=True, cutoff=2, current_level=0, alpha=-math.inf, beta=math.inf, is_max=True) -> State:
         """
         alpha will represent the minimum score that the maximizing player is ensured.
         beta will represent the maximum score that the minimizing player is ensured.
@@ -35,22 +39,22 @@ class OthelloAI:
         if current_level == cutoff:
             return state
 
-        nodes, _ = state.copy_with(turn).successor()
+        nodes, _ = state.copy_with(is_max).successor()
 
         if len(nodes) == 0:
             return state
 
-        scores = []
+        nods = []
         for node in nodes:
-            scores.append(
-                score := self.alpha_beta(node.copy_with(is_max), not turn, cutoff, current_level + 1, alpha, beta, is_max)
+            nods.append(
+                node := self.alpha_beta(node.copy_with(self.player), not turn, cutoff, current_level + 1, alpha, beta, not is_max)
             )
 
             if turn:
-                alpha = max(alpha, score.heuristic())
+                alpha = max(alpha, node.heuristic())
             else:
-                beta = min(beta, score.heuristic())
+                beta = min(beta, node.heuristic())
             if beta <= alpha:
                 break
 
-        return (max if turn else min)(scores)
+        return (max if turn else min)(nods)

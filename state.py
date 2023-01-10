@@ -130,12 +130,12 @@ class State:
         disk_parity = self.disk_parity()
         corner_captured = self.corner_captured()
 
-        return disk_parity + corner_captured + mobility + stability
+        return 2 * disk_parity + corner_captured + mobility + stability
 
     def disk_parity(self) -> float:
         max_player_disks = len(self.my_disks)
         min_player_disks = len(self.opponent_disks)
-        return 100 * (max_player_disks - min_player_disks) / (max_player_disks + min_player_disks)
+        return 100 * max_player_disks / (max_player_disks + min_player_disks)
 
     def mobility(self, actions, opponent_actions) -> float:
         max_player_moves = len(actions)
@@ -143,7 +143,7 @@ class State:
         if max_player_moves + min_player_moves == 0:
             return 0
         else:
-            return 100 * (max_player_moves - min_player_moves) / (max_player_moves + min_player_moves)
+            return 100 * max_player_moves / (max_player_moves + min_player_moves)
 
     def stability(self, flanked, opponent_flanked) -> float:
         max_player_stability = sum(opponent_flanked.values())
@@ -152,7 +152,7 @@ class State:
         if max_player_stability + min_player_stability == 0:
             return 0
         else:
-            return 100 * (max_player_stability - min_player_stability) / (max_player_stability + min_player_stability)
+            return 100 * max_player_stability / (max_player_stability + min_player_stability)
 
     def corner_captured(self) -> float:
         max_player_corners = 0
@@ -166,10 +166,7 @@ class State:
             if disk.is_corner():
                 min_player_corners += 1
 
-        if max_player_corners + min_player_corners == 0:
-            return 0
-        else:
-            return 100 * (max_player_corners - min_player_corners) / (max_player_corners + min_player_corners)
+        return 25 * (max_player_corners - min_player_corners)
 
     def valid_move(self) -> bool:
         # return true if player[turn] can move else False
