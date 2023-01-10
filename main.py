@@ -12,8 +12,8 @@ if __name__ == '__main__':
     time_start = datetime.now()
 
     while not state.is_goal():
-        t1 = datetime.now()
-        state = black_player.action(state, level=1) if state.turn else white_player.action(state, level=10)
+        action_start = datetime.now()
+        state = black_player.action(state, level=5) if state.turn else white_player.action(state, level=2)
         state.render()
         print(datetime.now() - action_start)
 

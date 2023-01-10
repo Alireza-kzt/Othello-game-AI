@@ -61,7 +61,7 @@ class OthelloAI:
         return (max if turn else min)(nods)
 
 
-    def forward(self, states: List[State], turn=True, cutoff=2, current_level=0, n=3, is_max=True):
+    def forward(self, states: List[State], turn=True, cutoff=2, current_level=0, n=5, is_max=True):
         
         if type(states) is not type([]):
             states = [states]
@@ -75,7 +75,7 @@ class OthelloAI:
             for child in nodes:
                 if child not in chileds:
                     chileds.append(child)
-        chileds.sort(key = lambda state: -state.heuristic() if is_max else state.heuristic())
+        chileds.sort(key = lambda state: state.heuristic() if turn else -state.heuristic())
         
         chileds = chileds[:n]
         
@@ -83,8 +83,6 @@ class OthelloAI:
             return (max if turn else min)(states)
 
         return (max if turn else min)(
-            [
-                self.forward(chileds, not turn, cutoff, current_level + 1, n, not is_max)
-            ]
+            [self.forward(chileds, not turn, cutoff, current_level + 1, n, not is_max)]
         )
 
