@@ -1,5 +1,6 @@
 from state import State
 import math
+from typing import List
 
 
 class OthelloAI:
@@ -8,7 +9,7 @@ class OthelloAI:
         super().__init__()
 
     def action(self, state: State, level=2) -> State:
-        node = self.alpha_beta(state, cutoff=level, is_max=state.turn)
+        node = self.forward(state, cutoff=level, is_max=state.turn)
 
         while node.parent != state and node != state:
             node = node.parent
@@ -58,3 +59,32 @@ class OthelloAI:
                 break
 
         return (max if turn else min)(nods)
+
+
+    def forward(self, states: List[State], turn=True, cutoff=2, current_level=0, n=3, is_max=True):
+        
+        if type(states) is not type([]):
+            states = [states]
+            
+        if current_level == cutoff:
+            return (max if turn else min)(states)
+
+        chileds = []
+        for state in states:
+            nodes, _ = state.copy_with(is_max).successor()
+            for child in nodes:
+                if child not in chileds:
+                    chileds.append(child)
+        chileds.sort(key = lambda state: -state.heuristic() if is_max else state.heuristic())
+        
+        chileds = chileds[:n]
+        
+        if len(chileds) == 0:
+            return (max if turn else min)(states)
+
+        return (max if turn else min)(
+            [
+                self.forward(chileds, not turn, cutoff, current_level + 1, n, not is_max)
+            ]
+        )
+
