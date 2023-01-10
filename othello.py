@@ -87,7 +87,7 @@ class OthelloAI:
                 if child not in chileds:
                     chileds.append(child.copy_with(self.player))
                     
-        chileds.sort(key = lambda state: state.heuristic(),reverse=is_max) 
+        chileds.sort(key = lambda state: state.heuristic(),reverse= not turn) 
         chileds = chileds[:n]
         
         if len(chileds) == 0:
